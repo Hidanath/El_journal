@@ -1,6 +1,24 @@
-import telebot
+import telebot, json
+TOKEN = None
+config = {
+    "time" : "16:00",
+    "login" : "yourlogin",
+    "password" : "yourpassword",
+    "chat_id" : None,
+    "TOKEN" : TOKEN
+}
 
-bot = telebot.TeleBot("2014175408:AAHLiO-80uvjVL2qNbybs6FaVSmwlFUU6iY")
+
+try: #Загрузка конфига
+    with open("config.json", "r") as f:
+        config = json.load(f)
+        TOKEN = config["TOKEN"]
+
+except:
+    with open("config.json", "w") as f:
+        json.dump(config, f, ensure_ascii=False, indent=4)
+
+bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def welcome(message):

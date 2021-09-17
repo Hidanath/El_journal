@@ -6,16 +6,17 @@ import telebot
 import time
 import json
 
-bot = telebot.TeleBot("2014175408:AAHLiO-80uvjVL2qNbybs6FaVSmwlFUU6iY") #Создание бота
 time_take = "16:00"
 login = "yourlogin"
 password = "yourpassword"
 chat_id = None
+TOKEN = None
 config = {
     "time" : time_take,
     "login" : login,
     "password" : password,
-    "chat_id" : chat_id
+    "chat_id" : chat_id,
+    "TOKEN" : TOKEN
 }
 
 try: #Загрузка конфига
@@ -25,15 +26,17 @@ try: #Загрузка конфига
         login = config["login"]
         password = config["password"]
         chat_id = config["chat_id"]
+        TOKEN = config["TOKEN"]
 
 except:
     with open("config.json", "w") as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
 
-if login == "yourlogin" or password == "yourpassword" or chat_id == None:
-    print("Смените значение логина, пароля и chat_id в конфиге")
+if login == "yourlogin" or password == "yourpassword" or chat_id == None or TOKEN == None:
+    print("Смените значение логина, пароля, chat_id и TOKEN в конфиге")
     quit()
 
+bot = telebot.TeleBot(TOKEN) #Создание бота
 print("Ожидание назначенного времени")
 while True:
     if datetime.now().strftime("%H:%M") == time_take:
