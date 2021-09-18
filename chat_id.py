@@ -5,7 +5,8 @@ config = {
     "login" : "yourlogin",
     "password" : "yourpassword",
     "chat_id" : None,
-    "TOKEN" : TOKEN
+    "TOKEN" : TOKEN,
+    "mode" : 1
 }
 
 

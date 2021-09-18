@@ -11,12 +11,15 @@ login = "yourlogin"
 password = "yourpassword"
 chat_id = None
 TOKEN = None
+mode = 1
+mode_bool = True
 config = {
     "time" : time_take,
     "login" : login,
     "password" : password,
     "chat_id" : chat_id,
-    "TOKEN" : TOKEN
+    "TOKEN" : TOKEN,
+    "mode" : mode
 }
 
 try: #Загрузка конфига
@@ -27,6 +30,7 @@ try: #Загрузка конфига
         password = config["password"]
         chat_id = config["chat_id"]
         TOKEN = config["TOKEN"]
+        mode = config["mode"]
 
 except:
     with open("config.json", "w") as f:
@@ -36,10 +40,13 @@ if login == "yourlogin" or password == "yourpassword" or chat_id == None or TOKE
     print("Смените значение логина, пароля, chat_id и TOKEN в конфиге")
     quit()
 
+if mode == 2:
+    mode_bool = False
+
 bot = telebot.TeleBot(TOKEN) #Создание бота
 print("Ожидание назначенного времени")
 while True:
-    if datetime.now().strftime("%H:%M") == time_take:
+    if datetime.now().strftime("%H:%M") == time_take or mode_bool == True:
         day = datetime.today().isoweekday() #Получения дня недели
         driver = webdriver.Chrome(ChromeDriverManager().install())
         url = "https://eljur.gospmr.org/authorize?return_uri=%2Fjournal-app" #Адрес сайта
@@ -75,6 +82,10 @@ while True:
 
         driver.close()
         print("Выполненно")
+
+        if mode == 1:
+            quit()
+
         print("Ожидание следующего цикла")
         time.sleep(70)
 
