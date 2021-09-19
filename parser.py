@@ -6,13 +6,15 @@ import telebot
 import time
 import json
 
-time_take = "16:00"
-login = "yourlogin"
-password = "yourpassword"
-chat_id = None
-TOKEN = None
-mode = 1
-mode_bool = True
+url = "https://eljur.gospmr.org/authorize?return_uri=%2Fjournal-app" #Адрес сайта
+sunday = True 
+time_take = "16:00" #Время
+login = "yourlogin" #Логин
+password = "yourpassword" #Пароль
+chat_id = None #Chat id бота
+TOKEN = None #Токен бота
+mode = 1 #Режим работы 1 - одноразовый запуск,2 - по времени
+mode_bool = True 
 config = {
     "time" : time_take,
     "login" : login,
@@ -36,22 +38,48 @@ except:
     with open("config.json", "w") as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
 
-if login == "yourlogin" or password == "yourpassword" or chat_id == None or TOKEN == None:
+if login == "yourlogin" or password == "yourpassword" or chat_id == None or TOKEN == None: #Проверки на пустые значения
     print("Смените значение логина, пароля, chat_id и TOKEN в конфиге")
-    quit()
+    exit()
+
+bot = telebot.TeleBot(TOKEN) #Создание бота
 
 if mode == 2:
     mode_bool = False
+    print("Ожидание назначенного времени")
+else:
+    print("Успешный запуск")
 
-bot = telebot.TeleBot(TOKEN) #Создание бота
-print("Ожидание назначенного времени")
 while True:
     if datetime.now().strftime("%H:%M") == time_take or mode_bool == True:
         day = datetime.today().isoweekday() #Получения дня недели
-        driver = webdriver.Chrome(ChromeDriverManager().install())
-        url = "https://eljur.gospmr.org/authorize?return_uri=%2Fjournal-app" #Адрес сайта
-        xpath_column = f"/html/body/div[1]/div[2]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div/div[{day}]" #Xpath колонки оценок
 
+        if day == 7: #Обработка воскресенья
+            if sunday: #Проверка переключателя
+                if mode == 1: #Если режим 1 выход из программы
+                    print("Исключение воскресенье")
+                    exit()
+
+                sunday = False #Смена переключателя
+                print("Исключение воскресенье")
+                continue
+
+            else:
+                try: #Проверка обновления конфига
+                    with open("config.json", "r") as f:
+                        config = json.load(f)
+                        time_take = config["time"]
+
+                except:
+                    with open("config.json", "w") as f:
+                        json.dump(config, f, ensure_ascii=False, indent=4)
+
+                time.sleep(30)
+                continue
+        
+        sunday = True #Смена переключателя
+        xpath_column = f"/html/body/div[1]/div[2]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div/div[{day}]" #Xpath колонки оценок
+        driver = webdriver.Chrome(ChromeDriverManager().install())
         driver.get(url)
         driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/div/div/form/div[1]/div[1]/div/input').send_keys(login) #Отправка логина
         driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/div/div/form/div[1]/div[2]/div/input').send_keys(password) #Отправка пароля
@@ -81,7 +109,7 @@ while True:
         print("Выполненно")
 
         if mode == 1:
-            quit()
+            exit()
 
         print("Ожидание следующего цикла")
         time.sleep(70)
