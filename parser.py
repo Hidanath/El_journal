@@ -52,9 +52,6 @@ while True:
         url = "https://eljur.gospmr.org/authorize?return_uri=%2Fjournal-app" #Адрес сайта
         xpath_column = f"/html/body/div[1]/div[2]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div/div[{day}]" #Xpath колонки оценок
 
-        if day == 7:
-            quit()
-
         driver.get(url)
         driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/div/div/form/div[1]/div[1]/div/input').send_keys(login) #Отправка логина
         driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/div/div/form/div[1]/div[2]/div/input').send_keys(password) #Отправка пароля
