@@ -107,10 +107,11 @@ while True:
                 break
         file.close()
         with open("marks.txt", "r", encoding="UTF-8") as f:
-            if f.read() == "":
+            file = f.read()
+            if file == "":
                 bot.send_message(chat_id, "Ты сегодня не получил оценок")
             else:
-                bot.send_message(chat_id, f.read()) #Отправка сообщения в телеграм
+                bot.send_message(chat_id, file) #Отправка сообщения в телеграм
 
         driver.close()
         print("Выполненно")
