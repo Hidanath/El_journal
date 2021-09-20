@@ -53,6 +53,7 @@ else:
 while True:
     if datetime.now().strftime("%H:%M") == time_take or mode_bool == True:
         day = datetime.today().isoweekday() #Получения дня недели
+        day_now = day
 
         if day == 7: #Обработка воскресенья
             if sunday: #Проверка переключателя
@@ -78,7 +79,6 @@ while True:
                 continue
         
         sunday = True #Смена переключателя
-        xpath_column = f"/html/body/div[1]/div[2]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div/div[{day}]" #Xpath колонки оценок
         driver = webdriver.Chrome(ChromeDriverManager().install())
         driver.get(url)
         driver.find_element_by_xpath('/html/body/div[1]/div/main/div/div/div/div/form/div[1]/div[1]/div/input').send_keys(login) #Отправка логина
@@ -86,24 +86,31 @@ while True:
         driver.find_element_by_xpath('//*[@id="loginviewport"]/div/div/form/div[2]/button').click()
 
         time.sleep(3)
-        driver.get("https://eljur.gospmr.org/journal-student-grades-action/u.2025")
-        time.sleep(3)
-        file = open("appraisals.txt", "w", encoding="UTF-8")
+        file = open("marks.txt", "w", encoding="UTF-8")
         for x in range(100):
             x += 1
-            try:
-                name = driver.find_element_by_xpath(f"{xpath_column}/div[{x}]").get_attribute("name") #Поиск элемента по xpath и получение атрибута name
-                appraisals = driver.find_element_by_xpath(f"{xpath_column}/div[{x}]/div[1]").text #Поиск элемента по xpath, получение атрибута text
-                if appraisals == " ": #Проверка на пустое значение
-                    appraisals = "None"
-                file.write(f"{name}: {appraisals}\n")
-                print(f"{name}: {appraisals}")
+            try: #Сработает если закончаться предметы
+                if day >= 2:
+                    day_now = day + 1
+
+                section = driver.find_element_by_xpath(f"/html/body/div[1]/div[2]/main/div/div[2]/div/div[2]/div/div[3]/div[{day_now}]/div[2]/div[{x}]") 
+                try: #Сработает если оценки нет
+                    name = section.find_element_by_xpath("./div[2]/span").text #Получение названия предмета
+                    mark = section.find_element_by_xpath("./div[3]/div/div").get_attribute("value") #Получение оценки
+                    print(f"{name}: {mark}")
+                    file.write(f"{name}: {mark}\n")
+
+                except:
+                    pass
                 
             except:
                 break
         file.close()
-        with open("appraisals.txt", "r", encoding="UTF-8") as f:
-            bot.send_message(chat_id, f.read()) #Отправка сообщения в телеграм
+        with open("marks.txt", "r", encoding="UTF-8") as f:
+            if f.read() == "":
+                bot.send_message(chat_id, "Ты сегодня не получил оценок")
+            else:
+                bot.send_message(chat_id, f.read()) #Отправка сообщения в телеграм
 
         driver.close()
         print("Выполненно")
